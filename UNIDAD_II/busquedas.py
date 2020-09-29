@@ -111,7 +111,7 @@ class ocho_puzzle:
         return nuevo_estado
 
     def algoritmo_anchura(self, EI):
-        iteracion = 0
+        iteracion = 1
         self.estado_actual = EI
         movimientos = ["UP","DOWN","LEFT","RIGHT"]
 
@@ -130,20 +130,59 @@ class ocho_puzzle:
             #Paso a siguiente iteracion
             self.estado_actual = self.pop()
             iteracion += 1
+        
+        print("Iteracion: " + str(iteracion) + "\n")
+        self.mostrar_estado_actual()
+        print("\n\n\nHa llegado a Solucion!!!")
+        self.buscar_padre(self.estado_actual)
+        print("\nALGORITMO EN ANCHURA:")
+        print("\nElementos en Historial: " + str(len(self.historial)))
+        print("\nElementos en Cola Estados: " + str(len(self.cola_estados)))
+        print("\nCantidad de Iteraciones: " + str(iteracion))
 
+    def add_profundidad(self, pila_sucesores):
+        while pila_sucesores.__len__() > 0:
+            e = pila_sucesores.pop()
+            self.historial.append(e)
+            self.cola_estados.appendleft(e)
+
+    def algoritmo_profundidad(self, EI):
+        iteracion = 1
+        self.estado_actual = EI
+        movimientos = ["UP", "DOWN", "LEFT", "RIGHT"]
+        sucesores = deque()
+
+        while not self.es_final():
+            print("Iteracion: " + str(iteracion) + "\n")
+            self.mostrar_estado_actual()
+
+            for movimiento in movimientos:
+                estado_temporal = nodo_estado(self.mover(movimiento), self.estado_actual, "Mover a " + movimiento, self.estado_actual.get_nivel() + 1)
+                if not self.esta_en_historial(estado_temporal) and not estado_temporal.get_estado() == "illegal":
+                    sucesores.append(estado_temporal)
+            
+            self.add_profundidad(sucesores) 
+
+            print("\nElementos en Historial: " + str(len(self.historial)))
+            print("\nElementos en Cola Estados: " + str(len(self.cola_estados)))
+
+            #Paso a siguiente iteracion
+            self.estado_actual = self.pop()
+            iteracion += 1
 
         print("Iteracion: " + str(iteracion) + "\n")
         self.mostrar_estado_actual()
         print("\n\n\nHa llegado a Solucion!!!")
         self.buscar_padre(self.estado_actual)
+        print("\nALGORITMO EN PROFUNDIDAD:")
         print("\nElementos en Historial: " + str(len(self.historial)))
         print("\nElementos en Cola Estados: " + str(len(self.cola_estados)))
         print("\nCantidad de Iteraciones: " + str(iteracion))
 
     def busqueda(self):
         self.add(self.estado_inicial)
-
-        self.algoritmo_anchura(self.pop())
+        #self.algoritmo_anchura(self.pop())
+        self.algoritmo_profundidad(self.pop())
 
 
 #MAIN
