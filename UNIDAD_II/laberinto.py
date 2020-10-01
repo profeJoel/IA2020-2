@@ -43,15 +43,17 @@ class nodo_estado:
         return self.valor == e
     
 class laberinto:
-    estados_finales = [nodo_estado([3,4], None, "Final", None),nodo_estado([1,4], None, "Final", None)]
 
-    def __init__(self, EI, mapa):
+    def __init__(self, EI, EF, mapa):
         self.estado_inicial = nodo_estado(EI, None, "Origen", 1)
+        self.estados_finales = []
         self.estado_actual = None
         self.historial = []
         self.cola_estados = deque()
         self.laberinto = mapa
         self.solucion = []
+        for e in EF:
+            self.estados_finales.append(nodo_estado(e, None, "Final", None))
 
     def add(self, e):
         self.cola_estados.append(e)
@@ -243,7 +245,7 @@ class laberinto:
             #Paso a siguiente iteracion
             self.estado_actual = self.pop()
             iteracion += 1
-            time.sleep(1)
+            time.sleep(0.2)
 
         print("Iteracion: " + str(iteracion) + "\n")
         self.mostrar_estado_actual()
@@ -255,15 +257,20 @@ class laberinto:
         print("\nElementos en Cola Estados: " + str(len(self.cola_estados)))
         print("\nCantidad de Iteraciones: " + str(iteracion))
 
-
     def busqueda(self):
         self.add(self.estado_inicial)
         #self.algoritmo_anchura(self.pop())
         self.algoritmo_profundidad(self.pop())
 
-
-
 if __name__ == "__main__":
-    coordenada = [0,0]
-    lab = laberinto(coordenada, leer_mapa("laberinto_simple.dat"))
+    #coordenada = [0,0]
+    #finales = [[3,4],[1,4]]
+    coordenada = [0,0] #Laberinto 1
+    #coordenada = [8,50] # Laberinto 2
+    finales = [[5,109],[14,109]] # Laberinto 1
+    #finales = [[6,0],[0,52],[19,11],[19,72],[3,109],[19,92]] # Laberinto 2
+    #lab = laberinto(coordenada, finales, leer_mapa("laberinto_simple.dat"))
+    lab = laberinto(coordenada, finales, leer_mapa("laberinto_rata/laberinto1.dat"))
+    #lab = laberinto(coordenada, finales, leer_mapa("laberinto_rata/laberinto2.dat"))
+    
     lab.busqueda()
