@@ -26,6 +26,7 @@ class nodo_estado:
         self.padre = p
         self.accion = a
         self.nivel = n
+        self.distancia = None
 
     def get_estado(self):
         return self.valor
@@ -38,10 +39,19 @@ class nodo_estado:
 
     def get_nivel(self):
         return self.nivel
+
+    def set_distancia(self, d):
+        self.distancia = d
+
+    def get_distancia(self):
+        return self.distancia
     
     def __eq__(self, e):
         return self.valor == e
-    
+
+def ordenar_por_heuristica(e):
+    return e.get_distancia()
+
 class laberinto:
 
     def __init__(self, EI, EF, mapa):
@@ -54,6 +64,7 @@ class laberinto:
         self.solucion = []
         for e in EF:
             self.estados_finales.append(nodo_estado(e, None, "Final", None))
+        self.calcular_heuristica(self.estado_inicial)
 
     def add(self, e):
         self.cola_estados.append(e)
@@ -204,7 +215,7 @@ class laberinto:
             #Paso a siguiente iteracion
             self.estado_actual = self.pop()
             iteracion += 1
-            time.sleep(1)
+            #time.sleep(1)
         
         print("Iteracion: " + str(iteracion) + "\n")
         self.mostrar_estado_actual()
@@ -245,7 +256,7 @@ class laberinto:
             #Paso a siguiente iteracion
             self.estado_actual = self.pop()
             iteracion += 1
-            time.sleep(0.2)
+            #time.sleep(0.2)
 
         print("Iteracion: " + str(iteracion) + "\n")
         self.mostrar_estado_actual()
@@ -257,20 +268,189 @@ class laberinto:
         print("\nElementos en Cola Estados: " + str(len(self.cola_estados)))
         print("\nCantidad de Iteraciones: " + str(iteracion))
 
+    def distancia_estados(self, estado_presente, estado_objetivo):
+        a = estado_presente.get_estado()
+        b = estado_objetivo.get_estado()
+
+        d = ((b[0]-a[0])**2 + (b[1]-a[1])**2)**0.5
+
+        return d
+
+    def calcular_heuristica(self, estado):
+        primero = True
+        for final in self.estados_finales:
+            if primero:
+                distancia = self.distancia_estados(estado, final)
+                primero = False
+            else:
+                nueva_distancia = self.distancia_estados(estado, final)
+                if nueva_distancia < distancia:
+                    distancia = nueva_distancia
+        estado.set_distancia(distancia)
+    
+    def algoritmo_primero_mejor(self, EI):
+        iteracion = 1
+        self.estado_actual = EI
+        movimientos = ["N", "S", "O", "E"]
+        sucesores = []
+
+        while not self.es_final():
+            print("Iteracion: " + str(iteracion) + "\n")
+            self.mostrar_estado_actual()
+
+            for movimiento in movimientos:
+                estado_temporal = nodo_estado(self.mover(movimiento), self.estado_actual, "Mover a " + movimiento, self.estado_actual.get_nivel() + 1)
+                if not self.esta_en_historial(estado_temporal) and not estado_temporal.get_estado() == "illegal":
+                    self.calcular_heuristica(estado_temporal)
+                    sucesores.append(estado_temporal)
+            
+            sucesores.sort(key=ordenar_por_heuristica)
+            self.add_profundidad(sucesores) 
+
+            print("\nElementos en Historial: " + str(len(self.historial)))
+            print("\nElementos en Cola Estados: " + str(len(self.cola_estados)))
+
+            #Paso a siguiente iteracion
+            self.estado_actual = self.pop()
+            iteracion += 1
+            #time.sleep(0.2)
+
+        print("Iteracion: " + str(iteracion) + "\n")
+        self.mostrar_estado_actual()
+        print("\n\n\nHa llegado a Solucion!!!")
+        self.buscar_padres(self.estado_actual)
+        self.mostrar_solucion(self.estado_inicial)
+        print("\nALGORITMO EN PROFUNDIDAD:")
+        print("\nElementos en Historial: " + str(len(self.historial)))
+        print("\nElementos en Cola Estados: " + str(len(self.cola_estados)))
+        print("\nCantidad de Iteraciones: " + str(iteracion))
+
+    
+    def add_beam(self, sucesores, b):
+        for estado in sucesores:
+            if b > 0:
+                self.add(estado)
+                b -= 1
+            else:
+                self.historial.append(estado)
+
+    def algoritmo_beam(self, EI):
+        iteracion = 1
+        b = 2 # variable de corte
+        sucesores = []
+        self.estado_actual = EI
+        movimientos = ["N","S","O","E"]
+
+        while(not self.es_final()):
+            print("Iteracion: " + str(iteracion) + "\n")
+            self.mostrar_estado_actual()
+
+            for movimiento in movimientos:
+                estado_temporal = nodo_estado(self.mover(movimiento), self.estado_actual, "Mover a " + movimiento, self.estado_actual.get_nivel() + 1)
+                if not self.esta_en_historial(estado_temporal) and not estado_temporal.get_estado() == "illegal":
+                    self.calcular_heuristica(estado_temporal)
+                    sucesores.append(estado_temporal) # se incluye en historial y en la cola
+
+            sucesores.sort(key=ordenar_por_heuristica)
+            self.add_beam(sucesores, b)
+            sucesores.clear()
+
+            print("\nElementos en Historial: " + str(len(self.historial)))
+            print("\nElementos en Cola Estados: " + str(len(self.cola_estados)))
+
+            #Paso a siguiente iteracion
+            self.estado_actual = self.pop()
+            iteracion += 1
+        
+        print("Iteracion: " + str(iteracion) + "\n")
+        self.mostrar_estado_actual()
+        print("\n\n\nHa llegado a Solucion!!!")
+        self.buscar_padres(self.estado_actual)
+        print("\nALGORITMO EN BEAM:")
+        print("\nElementos en Historial: " + str(len(self.historial)))
+        print("\nElementos en Cola Estados: " + str(len(self.cola_estados)))
+        print("\nCantidad de Iteraciones: " + str(iteracion))
+
+
+    def algoritmo_hill_climbing(self, EI):
+        iteracion = 1
+        termina_bien = True
+        self.estado_actual = EI
+        movimientos = ["N", "S", "O", "E"]
+        sucesores = []
+
+        while not self.es_final():
+            print("Iteracion: " + str(iteracion) + "\n")
+            self.mostrar_estado_actual()
+
+            for movimiento in movimientos:
+                estado_temporal = nodo_estado(self.mover(movimiento), self.estado_actual, "Mover a " + movimiento, self.estado_actual.get_nivel() + 1)
+                if not self.esta_en_historial(estado_temporal) and not estado_temporal.get_estado() == "illegal":
+                    self.calcular_heuristica(estado_temporal)
+                    sucesores.append(estado_temporal)
+            
+            sucesores.sort(key=ordenar_por_heuristica)
+            self.add_profundidad(sucesores)
+
+            print("\nElementos en Historial: " + str(len(self.historial)))
+            print("\nElementos en Cola Estados: " + str(len(self.cola_estados)))
+
+            #Paso a siguiente iteracion
+            estado_anterior = self.estado_actual
+            self.estado_actual = self.pop()
+
+            if estado_anterior.get_distancia() < self.estado_actual.get_distancia():
+                print("\n\n\nNO llega a Solucion!!!")
+                print("\nALGORITMO EN HILL CLIMBING:")
+                print("\nElementos en Historial: " + str(len(self.historial)))
+                print("\nElementos en Cola Estados: " + str(len(self.cola_estados)))
+                print("\nCantidad de Iteraciones: " + str(iteracion))
+                termina_bien = False
+                break
+
+            iteracion += 1
+        
+        if termina_bien:
+            print("Iteracion: " + str(iteracion) + "\n")
+            self.mostrar_estado_actual()
+            print("\n\n\nHa llegado a Solucion!!!")
+            self.buscar_padres(self.estado_actual)
+            print("\nALGORITMO EN HILL CLIMBING:")
+            print("\nElementos en Historial: " + str(len(self.historial)))
+            print("\nElementos en Cola Estados: " + str(len(self.cola_estados)))
+            print("\nCantidad de Iteraciones: " + str(iteracion))
+        else:
+            print("Termina Mal... que penita :(")
+
+
     def busqueda(self):
         self.add(self.estado_inicial)
-        #self.algoritmo_anchura(self.pop())
-        self.algoritmo_profundidad(self.pop())
+        self.algoritmo_anchura(self.pop())
+        #self.algoritmo_profundidad(self.pop())
+        #self.algoritmo_primero_mejor(self.pop())
+        #self.algoritmo_beam(self.pop())
+        #self.algoritmo_hill_climbing(self.pop())
+
 
 if __name__ == "__main__":
     #coordenada = [0,0]
     #finales = [[3,4],[1,4]]
-    coordenada = [0,0] #Laberinto 1
-    #coordenada = [8,50] # Laberinto 2
-    finales = [[5,109],[14,109]] # Laberinto 1
-    #finales = [[6,0],[0,52],[19,11],[19,72],[3,109],[19,92]] # Laberinto 2
+    #coordenada = [0,0] #Laberinto 1
+    coordenada = [8,50] # Laberinto 2
+    #finales = [[5,109],[14,109]] # Laberinto 1
+    finales = [[6,0],[0,52],[19,11],[19,72],[3,109],[19,92]] # Laberinto 2
     #lab = laberinto(coordenada, finales, leer_mapa("laberinto_simple.dat"))
-    lab = laberinto(coordenada, finales, leer_mapa("laberinto_rata/laberinto1.dat"))
-    #lab = laberinto(coordenada, finales, leer_mapa("laberinto_rata/laberinto2.dat"))
+    #lab = laberinto(coordenada, finales, leer_mapa("laberinto_rata/laberinto1.dat"))
+    lab = laberinto(coordenada, finales, leer_mapa("laberinto_rata/laberinto2.dat"))
     
     lab.busqueda()
+
+"""
+Resultados Laberinto 1
+Algorit  H   C  I  Optimo
+anchura 836  3 833 Optimo
+profund 538 13 525
+primero 287 27 260 Optimo *
+beam    833  4 829 Optimo
+Hill Cl  14  2  11 No LLega ICI
+"""
