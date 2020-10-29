@@ -1,3 +1,5 @@
+from busqueda import busqueda
+
 class jugador:
 
     def __init__(self, nombre, tipo):
@@ -9,7 +11,16 @@ class jugador:
         self.simbolo = simbolo
 
     def toma_turno_automatico(self, matriz):
-        return matriz
+        if self.simbolo == "X":
+            s_max = "X"
+            s_min = "O"
+        else:
+            s_max = "O"
+            s_min = "X"
+
+        bot = busqueda(matriz, s_max, s_min)
+        nueva_matriz = bot.inicia_busqueda()
+        return nueva_matriz
         
     def toma_turno_por_teclado(self, matriz):
         print("\n\nElige un espacio libre > Jugador: " + self.nombre)

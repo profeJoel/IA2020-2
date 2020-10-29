@@ -1,3 +1,5 @@
+from jugador import jugador
+
 class tablero:
 
     def __init__(self, jugador1, jugador2):
