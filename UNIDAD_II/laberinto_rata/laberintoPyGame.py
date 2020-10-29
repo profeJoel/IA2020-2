@@ -221,7 +221,7 @@ class laberinto(object):
                 if i == 0:
                     self.cantidad = len(posicion) - 1
                     self.ancho = ventana_x // self.cantidad
-                    print(self.cantidad, self.ancho)
+                    #print(self.cantidad, self.ancho)
                 j=0
                 for pos in posicion:
                     if pos == '0':
@@ -315,7 +315,7 @@ while repetir:
     # Inicializacion de elementos del juego
     nivel = 0
     nivel_maximo = 3
-    imagen_fondo = [pygame.image.load('img/bg0.jpg'), pygame.image.load('img/bg.jpg'), pygame.image.load('img/bg1.jpg'), pygame.image.load('img/bg2.jpg')]
+    #imagen_fondo = [pygame.image.load('img/bg0.jpg'), pygame.image.load('img/bg.jpg'), pygame.image.load('img/bg1.jpg'), pygame.image.load('img/bg2.jpg')]
     ruta_musica = ["snd/dubstep.mp3","snd/moose.mp3","snd/evolution.mp3","snd/epic.mp3"]
     musica_fondo = pygame.mixer.music.load(ruta_musica[nivel])
     #pygame.mixer.music.play(-1)
@@ -374,6 +374,10 @@ while repetir:
         personaje_intro.dibujar(ventana)
         pygame.display.update()
 
+
+######################################################################################################################
+    heroe.velocidad = laberinto_ejemplo.matriz[0][0].ancho
+    #print("plop: " + str(laberinto_ejemplo.matriz[0][0].ancho))
 
 ######################################################################################################################
     # Seccion de juego

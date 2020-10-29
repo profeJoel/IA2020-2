@@ -12,6 +12,12 @@ sys.setrecursionlimit(500000)
 def ordenar_por_f(e):
     return e.get_f()
 
+def ordenar_por_h(e):
+    return e.get_h()
+
+def ordenar_por_g(e):
+    return e.get_g()
+
 class busqueda:
     def __init__(self, nodo_inicial, nodo_final, archivo_grafo):
         self.tablero = grafo(archivo_grafo)
@@ -75,6 +81,8 @@ class busqueda:
                     cola_transitoria.append(estado_temporal)
                     N += 1
             cola_transitoria.sort(key=ordenar_por_f)
+            #cola_transitoria.sort(key=ordenar_por_h)
+            #cola_transitoria.sort(key=ordenar_por_g)
             self.traspasar_a_cola(cola_transitoria,N)
 
             return self.algoritmo_a_estrella(self.pop(), i + 1)
@@ -97,3 +105,11 @@ if __name__ == "__main__":
 
     experimento = busqueda(origen, destino, "g1.txt")
     experimento.busqueda()
+
+
+#####################
+"""
+a*          6   2   4   39
+avara       4   1   3   49
+uniforme    6   1   5   39
+"""
