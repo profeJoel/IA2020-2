@@ -7,6 +7,7 @@ class tablero:
         self.jugador1.set_simbolo("X")
         self.jugador2 = jugador2
         self.jugador2.set_simbolo("O")
+        self.hay_ganador = False
         self.matriz = [[" ", " ", " "], [" ", " ", " "], [" ", " ", " "]]
 
     def set_config(self, jugador1, jugador2):
@@ -69,6 +70,7 @@ class tablero:
                 self.insertar_movimiento(self.jugador2.toma_turno(self.matriz))
             
             if self.encuentra_ganador():
+                self.hay_ganador = True
                 if i%2 != 0:
                     print("\nGanador:",self.jugador1.nombre,"con",str(self.jugador1.cant_turnos),"turnos")
                 else:
@@ -77,7 +79,7 @@ class tablero:
             i += 1
         
         self.imprimir_matriz()
-        if self.cant_espacios_libres() == 0:
+        if self.cant_espacios_libres() == 0 and not self.hay_ganador:
             print("\nEMPATE!!!")
 
         print("************FIN DE PARTIDA************")

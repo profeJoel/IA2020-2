@@ -12,5 +12,6 @@ if __name__ == "__main__":
     bot = jugador("BOT", True)
 
     tictactoe = tablero(humano, bot)
+    #tictactoe = tablero(bot,humano)
     #tictactoe = tablero(humano, humano2)
     tictactoe.inicia_partida()

@@ -19,6 +19,7 @@ class jugador:
             s_min = "X"
 
         bot = busqueda(matriz, s_max, s_min)
+        #bot = busqueda(matriz, "X", "O")
         nueva_matriz = bot.inicia_busqueda()
         return nueva_matriz
         
