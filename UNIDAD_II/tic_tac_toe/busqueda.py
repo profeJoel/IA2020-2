@@ -10,6 +10,7 @@ class busqueda:
         self.s_max = s_max
         self.s_min = s_min
         self.estado_solucion = None
+        self.estados_descubiertos = 0
 
     def calcular_p(self, e, s):
         #m = self.estado_actual.get_estado()
@@ -119,6 +120,7 @@ class busqueda:
     def algoritmo_minimax(self, e, p, t):
         if p == 0 or self.juego_terminado(e):
             e.set_heuristica(self.calcular_heuristica(e,t))
+            self.estados_descubiertos += 1
             return e.get_heuristica()
         if t: #max
             hijos = []
@@ -156,13 +158,68 @@ class busqueda:
             #print("<<Minimizando:", minimo, "P:", p)
             #os.system("pause")
             return minimo
+
+    def algoritmo_minimax_alpha_beta(self, e, p, alpha, beta, t):
+        if p == 0 or self.juego_terminado(e):
+            e.set_heuristica(self.calcular_heuristica(e,t))
+            self.estados_descubiertos += 1
+            return e.get_heuristica()
+        if t: #max
+            hijos = []
+            maximo = -math.inf # -infinito por definicion de la heuristica
+            e_max = None
+            posiciones_hijos = self.ver_espacios_libres(e)
+            for posicion in posiciones_hijos:
+                hijos.append(self.se_mueve_a(e, posicion, self.s_max))
+            for hijo in hijos:
+                #self.mostrar_estado_actual(hijo)
+                eval = self.algoritmo_minimax_alpha_beta(hijo, p - 1, alpha, beta, False)
+                #print("H(e)=",eval)
+                if eval >= maximo:
+                    maximo = eval
+                    e_max = [row[:] for row in hijo.get_estado()]
+                if eval >= alpha:
+                    alpha = eval
+                if beta <= alpha:
+                    break
+            self.estado_solucion = [row[:] for row in e_max]
+            #print(">>>>>Maximizando: ", maximo, "P:", p)
+            #os.system("pause")
+            return maximo
+        else: #min
+            hijos = []
+            minimo = math.inf # +infinito por definicion de la heuristica
+            e_min = None
+            posiciones_hijos = self.ver_espacios_libres(e)
+            for posicion in posiciones_hijos:
+                hijos.append(self.se_mueve_a(e, posicion, self.s_min))
+            for hijo in hijos:
+                #self.mostrar_estado_actual(hijo)
+                eval = self.algoritmo_minimax_alpha_beta(hijo, p - 1, alpha, beta, True) #arreglar para cambiar movimiento
+                #print("H(e)=",eval)
+                if eval <= minimo:
+                    minimo = eval
+                    e_min = [row[:] for row in hijo.get_estado()]
+                if eval >= beta:
+                    beta = eval
+                if beta <= alpha:
+                    break
+            self.estado_solucion = [row[:] for row in e_min]
+            #print("<<Minimizando:", minimo, "P:", p)
+            #os.system("pause")
+            return minimo
     
     def inicia_busqueda(self):
-        #if self.s_max == "X":
-        #    print("\n\nResultado >>" + str(self.algoritmo_minimax(self.estado_inicial, 2, True)))
-        #else:
-        #    print("\n\nResultado >>" + str(self.algoritmo_minimax(self.estado_inicial, 2, False)))
-        print("\n\nResultado >>" + str(self.algoritmo_minimax(self.estado_inicial, 2, True)))
+        
+        #print("\n\nResultado >>" + str(self.algoritmo_minimax(self.estado_inicial, 8, True)))
+        print("\n\nResultado >>" + str(self.algoritmo_minimax_alpha_beta(self.estado_inicial, 8, -math.inf, math.inf, True)))
+        
+        print("Estados Descubiertos:", self.estados_descubiertos)
+
+        #infinity = float('inf')
 
         
         return self.estado_solucion
+
+
+        
