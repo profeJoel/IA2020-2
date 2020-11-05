@@ -178,8 +178,9 @@ class busqueda:
                 if eval >= maximo:
                     maximo = eval
                     e_max = [row[:] for row in hijo.get_estado()]
-                if eval >= alpha:
-                    alpha = eval
+                #if eval >= alpha:
+                #    alpha = eval
+                alpha = max(alpha, eval)
                 if beta <= alpha:
                     break
             self.estado_solucion = [row[:] for row in e_max]
@@ -200,8 +201,9 @@ class busqueda:
                 if eval <= minimo:
                     minimo = eval
                     e_min = [row[:] for row in hijo.get_estado()]
-                if eval >= beta:
-                    beta = eval
+                #if eval <= beta:
+                #    beta = eval
+                beta = min(beta,eval)
                 if beta <= alpha:
                     break
             self.estado_solucion = [row[:] for row in e_min]
@@ -210,9 +212,15 @@ class busqueda:
             return minimo
     
     def inicia_busqueda(self):
-        
-        #print("\n\nResultado >>" + str(self.algoritmo_minimax(self.estado_inicial, 8, True)))
-        print("\n\nResultado >>" + str(self.algoritmo_minimax_alpha_beta(self.estado_inicial, 8, -math.inf, math.inf, True)))
+        #Profundiad Iterativa
+        mejor = -math.inf
+        for i in range(2,9):
+            #parcial = self.algoritmo_minimax(self.estado_inicial, i, True)
+            parcial = self.algoritmo_minimax_alpha_beta(self.estado_inicial, 2, -math.inf, math.inf, True)
+            mejor = max(mejor, parcial)
+            
+            print("\n\nResultado >>" + str(mejor))
+        #print("\n\nResultado >>" + str(self.algoritmo_minimax_alpha_beta(self.estado_inicial, 2, -math.inf, math.inf, True)))
         
         print("Estados Descubiertos:", self.estados_descubiertos)
 
