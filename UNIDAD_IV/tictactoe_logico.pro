@@ -1,3 +1,7 @@
+%%%%%%%%%%%%%%%%%%
+%https://github.com/cheery/prolog-tic-tac-toe/blob/master/tictactoe.pro
+%%%%%%%%%%%%%%%%%%
+
 play :- my_turn([]).
 
 my_turn(Game) :-
@@ -54,7 +58,7 @@ plot_row(Y, Game) :-
 plot(Game, X, Y) :-
     (member(move(P, X, Y), Game), ground(P)) -> write(P) ; write('.').
 
-% This system determines whether there's a perfect play available.
+% This system determines whether theres a perfect play available.
 game_analysis(_, Game, _) :-
     victory_condition(Winner, Game),
     Winner = x. % We do not want to lose.
@@ -70,7 +74,7 @@ game_analysis_continue(Turn, Game, NextMove) :-
 
 % Comment these away and the system refuses to play,
 % because there are no ways to play this without a possibility of tie.
-game_analysis_search([], o, _, _). % Tie on opponent's turn.
+game_analysis_search([], o, _, _). % Tie on opponents turn.
 game_analysis_search([], x, _, _). % Tie on our turn.
 
 game_analysis_search([X|Z], o, Game, NextMove) :- % Whatever opponent does,
